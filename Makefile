@@ -1,4 +1,4 @@
-# GRANIITTI Makefile
+#   GRANIITTI Makefile
 #
 # (c) 2017-2022 Mikael Mieskolainen.
 # Licensed under the MIT License <http://opensource.org/licenses/MIT>.
