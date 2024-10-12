@@ -93,6 +93,23 @@ bool UserCut(int id, const gra::LORENTZSCALAR &lts) {
     }
   }
 
+  // ATLAS 13 TeV CUTS
+
+  else if (id == 1300094000) {
+    const std::vector<int> indices = {1, 2};
+
+    // Loop over forward protons
+    for (const auto &i : indices) {
+      if (std::abs(lts.pfinal[i].Py()) > 0.17 &&
+          std::abs(lts.pfinal[i].Py()) < 0.5) {
+        // fine
+      } else {
+        return false;  // not passed
+      }
+    }
+  }
+
+
   // --------------------------------------------------------------------
   // STAR/RHIC \sqrt{s} = 200 GeV pi+pi- / K+K-, ppbar (+ other cuts needed in .json file)
   // https://rivet.hepforge.org/analyses/STAR_2020_I1792394
