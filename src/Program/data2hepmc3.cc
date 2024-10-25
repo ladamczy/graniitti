@@ -78,6 +78,10 @@ int main(int argc, char *argv[]) {
   double dummy     = 0;
   double P1_gen[3] = {0.0};
   double P2_gen[3] = {0.0};
+  
+  double Pi1_gen[3] = {0.0};
+  double Pi2_gen[3] = {0.0};
+
   //  double P1_rec[3]  = {0.0};
   //  double P2_rec[3]  = {0.0};
   //  int    PDG1       = 0;
@@ -85,7 +89,8 @@ int main(int argc, char *argv[]) {
   //  int    REC        = 0;
   double PID_weight = 0;
 
-  const int DATATYPE = 9;  // # number of variables
+  //const int DATATYPE = 9;  // # number of variables
+  const int DATATYPE = 12; 
 
   // Diagnostics
   MH1<double> hM(40, 0, 2.5, "System Mass (GeV)");
@@ -95,8 +100,12 @@ int main(int argc, char *argv[]) {
   while (true) {
     int ret = -1;
 
-    ret = fscanf(fp, "%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf", &P1_gen[0], &P1_gen[1], &P1_gen[2],
-                 &dummy, &P2_gen[0], &P2_gen[1], &P2_gen[2], &dummy, &PID_weight);
+    /*ret = fscanf(fp, "%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf", &P1_gen[0], &P1_gen[1], &P1_gen[2],
+                 &dummy, &P2_gen[0], &P2_gen[1], &P2_gen[2], &dummy, &PID_weight);*/
+
+    ret = fscanf(fp, "%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf", &P1_gen[0], &P1_gen[1], &P1_gen[2],
+                &P2_gen[0], &P2_gen[1], &P2_gen[2], &Pi1_gen[0], &Pi1_gen[1], &Pi1_gen[2],
+                &Pi2_gen[0], &Pi2_gen[1], &Pi2_gen[2]);
 
     /*
     ret = fscanf(fp, "%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%lf,%d,%d,%d",
@@ -116,8 +125,11 @@ int main(int argc, char *argv[]) {
       return EXIT_FAILURE;
     }
 
-    const double m1 = PDG::mpi;  // Pion mass
-    const double m2 = PDG::mpi;
+    const double m1 = PDG::mp;  // Proton mass
+    const double m2 = PDG::mp;
+
+    const double m1_pi = PDG::mpi;  // Pion mass
+    const double m2_pi = PDG::mpi;
 
     // Create 4-vectors
     gra::M4Vec pf1;
@@ -125,7 +137,12 @@ int main(int argc, char *argv[]) {
     gra::M4Vec pf2;
     pf2.SetPxPyPzM(P2_gen[0], P2_gen[1], P2_gen[2], m2);
 
-    gra::M4Vec system = pf1 + pf2;
+    gra::M4Vec pif1;
+    pif1.SetPxPyPzM(Pi1_gen[0], Pi1_gen[1], Pi1_gen[2], m1_pi);
+    gra::M4Vec pif2;
+    pif2.SetPxPyPzM(Pi2_gen[0], Pi2_gen[1], Pi2_gen[2], m2_pi);
+
+    gra::M4Vec system = pif1 + pif2;
 
     hM.Fill(system.M());
 
@@ -137,30 +154,37 @@ int main(int argc, char *argv[]) {
     HepMC3::GenEvent evt(HepMC3::Units::GEV, HepMC3::Units::MM);
 
     // Dummy beams
-    gra::M4Vec beam1(0, 0, 1000, 1000);
-    gra::M4Vec beam2(0, 0, -1000, 1000);
+    gra::M4Vec beam1(0, 0, 6500, 6500); //Alice 1000
+    gra::M4Vec beam2(0, 0, -6500, 6500);
 
     HepMC3::GenParticlePtr gen_beam1 = std::make_shared<HepMC3::GenParticle>(
         gra::aux::M4Vec2HepMC3(beam1), PDG::PDG_p, PDG::PDG_BEAM);
     HepMC3::GenParticlePtr gen_beam2 = std::make_shared<HepMC3::GenParticle>(
         gra::aux::M4Vec2HepMC3(beam2), PDG::PDG_p, PDG::PDG_BEAM);
 
-    HepMC3::GenParticlePtr gen_system = std::make_shared<HepMC3::GenParticle>(
-        gra::aux::M4Vec2HepMC3(system), PDG::PDG_system, PDG::PDG_INTERMEDIATE);
     HepMC3::GenParticlePtr gen_p1f = std::make_shared<HepMC3::GenParticle>(
         gra::aux::M4Vec2HepMC3(pf1), PDG::PDG_pip, PDG::PDG_STABLE);
     HepMC3::GenParticlePtr gen_p2f = std::make_shared<HepMC3::GenParticle>(
         gra::aux::M4Vec2HepMC3(pf2), PDG::PDG_pim, PDG::PDG_STABLE);
+
+    HepMC3::GenParticlePtr gen_system = std::make_shared<HepMC3::GenParticle>(
+        gra::aux::M4Vec2HepMC3(system), PDG::PDG_system, PDG::PDG_INTERMEDIATE);
+    HepMC3::GenParticlePtr gen_pi1f = std::make_shared<HepMC3::GenParticle>(
+        gra::aux::M4Vec2HepMC3(pif1), PDG::PDG_pip, PDG::PDG_STABLE);
+    HepMC3::GenParticlePtr gen_pi2f = std::make_shared<HepMC3::GenParticle>(
+        gra::aux::M4Vec2HepMC3(pif2), PDG::PDG_pim, PDG::PDG_STABLE);
     HepMC3::GenVertexPtr v1 = std::make_shared<HepMC3::GenVertex>();
     HepMC3::GenVertexPtr v2 = std::make_shared<HepMC3::GenVertex>();
 
     v1->add_particle_in(gen_beam1);
     v1->add_particle_in(gen_beam2);
     v1->add_particle_out(gen_system);
+    v1->add_particle_out(gen_p1f);
+    v1->add_particle_out(gen_p2f);
 
     v2->add_particle_in(gen_system);
-    v2->add_particle_out(gen_p1f);
-    v2->add_particle_out(gen_p2f);
+    v2->add_particle_out(gen_pi1f);
+    v2->add_particle_out(gen_pi2f);
 
     // Finally add all vertices to the event
     evt.add_vertex(v1);
