@@ -487,7 +487,6 @@ void ReadIn(const std::string inputfile, std::vector<gra::spherical::Omega> &eve
         pim[0].Eta() > fidcuts.ETA[0] && pim[0].Eta() < fidcuts.ETA[1] &&
         pim[0].Pt() > fidcuts.PT[0] && pim[0].Pt() < fidcuts.PT[1]) {
       evt.fiducial = true;
-      std::cout<<"py"<<std::abs(p_final_minus.Py())<<'\n';
     }
 
     // ------------------------------------------------------------------
