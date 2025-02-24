@@ -87,7 +87,7 @@ int main(int argc, char *argv[]) {
   //  int    PDG1       = 0;
   //  int    PDG2       = 0;
   //  int    REC        = 0;
-  double PID_weight = 0;
+  // double PID_weight = 0;
 
   //const int DATATYPE = 9;  // # number of variables
   const int DATATYPE = 12; 
@@ -163,9 +163,9 @@ int main(int argc, char *argv[]) {
         gra::aux::M4Vec2HepMC3(beam2), PDG::PDG_p, PDG::PDG_BEAM);
 
     HepMC3::GenParticlePtr gen_p1f = std::make_shared<HepMC3::GenParticle>(
-        gra::aux::M4Vec2HepMC3(pf1), PDG::PDG_pip, PDG::PDG_STABLE);
+        gra::aux::M4Vec2HepMC3(pf1), PDG::PDG_p, PDG::PDG_STABLE);
     HepMC3::GenParticlePtr gen_p2f = std::make_shared<HepMC3::GenParticle>(
-        gra::aux::M4Vec2HepMC3(pf2), PDG::PDG_pim, PDG::PDG_STABLE);
+        gra::aux::M4Vec2HepMC3(pf2), PDG::PDG_p, PDG::PDG_STABLE);
 
     HepMC3::GenParticlePtr gen_system = std::make_shared<HepMC3::GenParticle>(
         gra::aux::M4Vec2HepMC3(system), PDG::PDG_system, PDG::PDG_INTERMEDIATE);
