@@ -416,7 +416,7 @@ void ReadIn(const std::string inputfile, std::vector<gra::spherical::Omega> &eve
     }
 
     // Final state protons
-    if (FRAME == "GJ") {
+    //if (FRAME == "GJ") {
       for (HepMC3::ConstGenParticlePtr p1 :
            HepMC3::applyFilter(HepMC3::StandardSelector::STATUS == PDG::PDG_STABLE &&
                                    HepMC3::StandardSelector::PDG_ID == PDG::PDG_p,
@@ -429,7 +429,7 @@ void ReadIn(const std::string inputfile, std::vector<gra::spherical::Omega> &eve
           p_final_minus = pvec;
         }
       }
-    }
+    //}
 
     // ------------------------------------------------------------------
     // Do the frame transformations
@@ -478,12 +478,16 @@ void ReadIn(const std::string inputfile, std::vector<gra::spherical::Omega> &eve
     // ------------------------------------------------------------------
     // FIDUCIAL CUTS
 
-    if (pip[0].Eta() > fidcuts.ETA[0] && pip[0].Eta() < fidcuts.ETA[1] &&
+    if (std::abs(p_final_minus.Py()) > 0.17 && std::abs(p_final_minus.Py()) < 0.5 &&
+        std::abs(p_final_plus.Py()) > 0.17 && std::abs(p_final_plus.Py()) < 0.5 &&
+
+        pip[0].Eta() > fidcuts.ETA[0] && pip[0].Eta() < fidcuts.ETA[1] &&
         pip[0].Pt() > fidcuts.PT[0] && pip[0].Pt() < fidcuts.PT[1] &&
 
         pim[0].Eta() > fidcuts.ETA[0] && pim[0].Eta() < fidcuts.ETA[1] &&
         pim[0].Pt() > fidcuts.PT[0] && pim[0].Pt() < fidcuts.PT[1]) {
       evt.fiducial = true;
+      std::cout<<"py"<<std::abs(p_final_minus.Py())<<'\n';
     }
 
     // ------------------------------------------------------------------
