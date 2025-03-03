@@ -91,22 +91,31 @@
 
   "FIDCUTS" : {
     
-    "active" : false,
+    "active" : true,
     
      // Central system final states
     "PARTICLE" : {
 
-      "Eta"  : [-2.5, 2.5],      // Pseudorapidity
-      "Rap"  : [-10.0, 10.0],    // Rapidity
-      "Pt"   : [0.1, 100000.0],  // Transverse momentum
+      //"Eta"  : [-2.5, 2.5],      // Pseudorapidity
+      //"Rap"  : [-10.0, 10.0],    // Rapidity
+      //"Pt"   : [0.1, 100000.0],  // Transverse momentum
+      //"Et"   : [0.0, 100000.0]   // Transverse energy
+
+      "Eta"  : [-2500.0, 2500.0],      // Pseudorapidity
+      "Rap"  : [-1000.0, 1000.0],    // Rapidity
+      "Pt"   : [0.0, 100000.0],  // Transverse momentum
       "Et"   : [0.0, 100000.0]   // Transverse energy
     },
     
     // Central system
     "SYSTEM" : {
       
-      "M"    : [0.0, 4.0],      // Mass
-      "Rap"  : [-10.0, 10.0],    // Rapidity
+      //"M"    : [0.0, 4.0],      // Mass
+      //"Rap"  : [-10.0, 10.0],    // Rapidity
+      //"Pt"   : [0.0, 100000.0]   // Transverse momentum
+
+      "M"    : [0.0, 100000.0],      // Mass
+      "Rap"  : [-1000.0, 1000.0],    // Rapidity
       "Pt"   : [0.0, 100000.0]   // Transverse momentum
     },
     
@@ -114,11 +123,12 @@
     "FORWARD" : {
 
       "M"    : [0.0, 100000.0],  // Mass
-      "t"    : [0.03, 100000.0], // Forward protons/N* Mandelstam t (absolute value) (GeV^2)
+      "t"    : [0.028, 100000.0] // Forward protons/N* Mandelstam t (absolute value) (GeV^2)
     },
     
     // Custom user cuts (default false, otherwise identifier ID)
-    "USERCUTS" : 1300094000
+    // "USERCUTS" : 1300094000
+    "USERCUTS" : false
   }
 
 }

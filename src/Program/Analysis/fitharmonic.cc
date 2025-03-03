@@ -210,7 +210,7 @@ int main(int argc, char *argv[]) {
     // Read in reference MC for detector expansion (needs to be the same FRAME
     // for all)
     std::vector<gra::spherical::Omega> REFMC;
-    ReadIn(ref, REFMC, FRAME, MAXEVENTS, true);  // Always simulate reference here
+    ReadIn(ref, REFMC, FRAME, MAXEVENTS, false);  // Always simulate reference here
 
     // Check dimensions
     auto checkdim = [](const std::vector<std::vector<std::string>> &vec) {
@@ -466,6 +466,7 @@ void ReadIn(const std::string inputfile, std::vector<gra::spherical::Omega> &eve
     // Construct microevent structure
     gra::spherical::Omega evt;
 
+
     // Event data
     evt.costheta = std::cos(rf[0].Theta());
     evt.phi      = rf[0].Phi();
@@ -478,7 +479,9 @@ void ReadIn(const std::string inputfile, std::vector<gra::spherical::Omega> &eve
     // ------------------------------------------------------------------
     // FIDUCIAL CUTS
 
-    if (std::abs(p_final_minus.Py()) > 0.17 && std::abs(p_final_minus.Py()) < 0.5 &&
+    if ((pip[0].Pt() > 0.2 || pim[0].Pt() > 0.2) &&
+
+        std::abs(p_final_minus.Py()) > 0.17 && std::abs(p_final_minus.Py()) < 0.5 &&
         std::abs(p_final_plus.Py()) > 0.17 && std::abs(p_final_plus.Py()) < 0.5 &&
 
         pip[0].Eta() > fidcuts.ETA[0] && pip[0].Eta() < fidcuts.ETA[1] &&
@@ -511,6 +514,8 @@ void ReadIn(const std::string inputfile, std::vector<gra::spherical::Omega> &eve
       }
     }
     // ------------------------------------------------------------------
+
+
 
     events[events_read] = evt;
 
