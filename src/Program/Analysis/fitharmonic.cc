@@ -8,6 +8,10 @@
 // Licensed under the MIT License <http://opensource.org/licenses/MIT>.
 
 
+// My
+#include "TFile.h"
+#include "TEfficiency.h"
+
 // C++
 #include <math.h>
 
@@ -210,7 +214,7 @@ int main(int argc, char *argv[]) {
     // Read in reference MC for detector expansion (needs to be the same FRAME
     // for all)
     std::vector<gra::spherical::Omega> REFMC;
-    ReadIn(ref, REFMC, FRAME, MAXEVENTS, false);  // Always simulate reference here
+    ReadIn(ref, REFMC, FRAME, MAXEVENTS, true);  // Always simulate reference here
 
     // Check dimensions
     auto checkdim = [](const std::vector<std::vector<std::string>> &vec) {
@@ -347,6 +351,20 @@ void ReadIn(const std::string inputfile, std::vector<gra::spherical::Omega> &eve
   // Allocate memory here for speed
   events.resize((int)1e7);
   printf("Memory allocated \n");
+
+  // Loading the efficiency file
+
+  TFile *file = TFile::Open("pythia_nd_ID_Eff.root");
+    TEfficiency* mIDTrackingEff_NoZ0SinThetaCut[3][2];
+    for(int i=0; i<3; ++i){
+      for(int j=0; j<2; ++j){       
+          TString name;
+          name.Form("%s_mass%d_NoZ0SinThetaCut"/*"MCEfficiencies/%s_mass%d_NoZ0SinThetaCut"*/, j==0 ? "Pos" : "Neg", i);
+          mIDTrackingEff_NoZ0SinThetaCut[i][j] = dynamic_cast<TEfficiency*>( file->Get( name ) );
+          if( mIDTrackingEff_NoZ0SinThetaCut[i][j] )
+              mIDTrackingEff_NoZ0SinThetaCut[i][j]->SetDirectory(0);      
+      }
+    }
 
   // Event loop
   while (!input_file.failed()) {
@@ -505,14 +523,51 @@ void ReadIn(const std::string inputfile, std::vector<gra::spherical::Omega> &eve
     // Fast simulate smooth detector pt-efficiency curve here by hyperbolic
     // tangent per
     // particle
-    if (SIMULATE) {
+    /*if (SIMULATE) {
       if ((std::tanh(pip[0].Pt() * pt_scale) > rrand.U(0, 1)) &&
           (std::tanh(pim[0].Pt() * pt_scale) > rrand.U(0, 1))) {
         // fine
       } else {
         evt.selected = false;
       }
-    }
+    }*/
+
+    if (SIMULATE) {
+
+      double pt, eta;
+
+      pt = pip[0].Pt()>4.99 ? 4.99 : pip[0].Pt(); //ALERT
+      pt = pip[0].Pt()<0.1 ? 0.101 : pip[0].Pt(); //ALERT
+      eta = pip[0].Eta()>0 ? (pip[0].Eta() > 2.49 ? 2.49 : pip[0].Eta()) : (pip[0].Eta() < -2.49 ? -2.49 : pip[0].Eta()); 
+
+      double effpip = mIDTrackingEff_NoZ0SinThetaCut[0][0]->GetEfficiency( mIDTrackingEff_NoZ0SinThetaCut[0][0]->FindFixBin(pt, eta) );
+
+      pt = pim[0].Pt()>4.99 ? 4.99 : pim[0].Pt(); //ALERT
+      pt = pim[0].Pt()<0.1 ? 0.101 : pim[0].Pt(); //ALERT
+      eta = pim[0].Eta()>0 ? (pim[0].Eta() > 2.49 ? 2.49 : pim[0].Eta()) : (pim[0].Eta() < -2.49 ? -2.49 : pim[0].Eta()); 
+
+      double effpim = mIDTrackingEff_NoZ0SinThetaCut[0][1]->GetEfficiency( mIDTrackingEff_NoZ0SinThetaCut[0][1]->FindFixBin(pt, eta) );
+
+      /*pt = p_final_minus.Pt()>4.99 ? 4.99 : p_final_minus.Pt(); //ALERT
+      pt = p_final_minus.Pt()<0.1 ? 0.101 : p_final_minus.Pt(); //ALERT
+      eta = p_final_minus.Eta()>0 ? (p_final_minus.Eta() > 2.49 ? 2.49 : p_final_minus.Eta()) : (p_final_minus.Eta() < -2.49 ? -2.49 : p_final_minus.Eta()); 
+
+      double effpm = mIDTrackingEff_NoZ0SinThetaCut[2][1]->GetEfficiency( mIDTrackingEff_NoZ0SinThetaCut[2][1]->FindFixBin(pt, eta) );
+
+      pt = p_final_plus.Pt()>4.99 ? 4.99 : p_final_plus.Pt(); //ALERT
+      pt = p_final_plus.Pt()<0.1 ? 0.101 : p_final_plus.Pt(); //ALERT
+      eta = p_final_plus.Eta()>0 ? (p_final_plus.Eta() > 2.49 ? 2.49 : p_final_plus.Eta()) : (p_final_plus.Eta() < -2.49 ? -2.49 : p_final_plus.Eta()); 
+
+      double effpp = mIDTrackingEff_NoZ0SinThetaCut[2][0]->GetEfficiency( mIDTrackingEff_NoZ0SinThetaCut[2][0]->FindFixBin(pt, eta) );*/
+
+      if ((effpip > rrand.U(0, 1)) &&
+           effpim > rrand.U(0, 1)) {
+        //std::cout<<effpip;
+        // fine
+      } else {
+        evt.selected = false;
+      }
+    }    
     // ------------------------------------------------------------------
 
 
@@ -523,6 +578,8 @@ void ReadIn(const std::string inputfile, std::vector<gra::spherical::Omega> &eve
     if (events_read % 500000 == 0) { printf("Event %d \n", events_read); }
   }
 
+  file->Close();
+
   // Remove empty memory
   events.resize(events_read);
   printf("Events read: %d \n\n", events_read);
@@ -530,3 +587,4 @@ void ReadIn(const std::string inputfile, std::vector<gra::spherical::Omega> &eve
   // Close HepMC file
   input_file.close();
 }
+
